@@ -47,16 +47,15 @@ This API includes **JWT authentication**, **role-based authorization**, **NLog l
 
 ## 🏗️ Architecture
 
-LoansWebApi/
-│
-├── Loans.Api/ → Controllers, middleware, Program.cs
-├── Loans.Application/ → Services, DTOs, validators, logic
-├── Loans.Domain/ → Entities, enums, error models
-├── Loans.Infrastructure/ → EF Core, repositories, context, migrations
-│
-├── Loans.Tests.Unit/ → xUnit unit tests
-└── Loans.Tests.Integration/ → API integration tests
-
+- LoansWebApi/
+- │
+- ├── Loans.Api/ → Controllers, middleware, Program.cs
+- ├── Loans.Application/ → Services, DTOs, validators, logic
+- ├── Loans.Domain/ → Entities, enums, error models
+- ├── Loans.Infrastructure/ → EF Core, repositories, context, migrations
+- │
+- ├── Loans.Tests.Unit/ → xUnit unit tests
+- └── Loans.Tests.Integration/ → API integration tests
 
 ### Principles Used
 
@@ -86,6 +85,7 @@ Example:
 ```csharp
 [Authorize(Roles = "User")]
 [Authorize(Roles = "Accountant")]
+```
 
 | Component     | Technology                        |
 | ------------- | --------------------------------- |
@@ -102,14 +102,14 @@ Example:
 | ---------------------- | ------------- |
 | `/logs/yyyy-mm-dd.log` | File logs     |
 | `Logs` table           | Database logs |
-Configured in nlog.config.
+#### Configured in nlog.config.
 
-❗ Global Error Handling
+## ❗ Global Error Handling
 
 All errors are handled by custom middleware.
 
-Standard response:
-
+#### Standard response:
+```Json
 {
   "errorCode": "USER_NOT_FOUND",
   "message": "User not found",
@@ -117,64 +117,53 @@ Standard response:
   "details": null,
   "timestamp": "2025-01-01T12:00:00Z"
 }
+```
 
+#### Supports:
 
-Supports:
+- Validation errors
+- Not found errors
+- Unauthorized
+- Forbidden
+- Internal server errors
 
-Validation errors
+## 🧪 Tests
+### Unit Tests (Loans.Tests.Unit)
 
-Not found errors
+- Services
+- Validators
+- Repositories (mocked)
+- Controllers (light)
 
-Unauthorized
+### Integration Tests (Loans.Tests.Integration)
 
-Forbidden
-
-Internal server errors
-
-🧪 Tests
-Unit Tests (Loans.Tests.Unit)
-
-Services
-
-Validators
-
-Repositories (mocked)
-
-Controllers (light)
-
-Integration Tests (Loans.Tests.Integration)
-
-Uses SQLite InMemory
-
-Uses WebApplicationFactory
-
+- Uses SQLite InMemory
+- Uses WebApplicationFactory
 Covers:
+- Auth flow
+- Loan lifecycle
+- User restrictions
+- Role-based access
+- Error schema tests
 
-Auth flow
-
-Loan lifecycle
-
-User restrictions
-
-Role-based access
-
-Error schema tests
-
-Run all tests:
-
+### Run all tests:
+```cli
 dotnet test
-
-🛠️ Run the Project
-1️⃣ Apply migrations
+```
+## 🛠️ Run the Project
+#### 1️⃣ Apply migrations
+```cli
 dotnet ef database update --project Loans.Infrastructure
-
-2️⃣ Run API
+```
+#### 2️⃣ Run API
+```cli
 dotnet run --project Loans.Api
+```
+#### 3️⃣ Open Swagger
+https://localhost:{port}/swagger/index.html
 
-3️⃣ Open Swagger
-https://localhost:{port}/swagger
-
-🔧 Configuration (appsettings.json)
+## 🔧 Configuration (appsettings.json)
+```json
 "ConnectionStrings": {
   "sqlConnection": "Server=.;Database=LoansDb;Trusted_Connection=True;"
 },
@@ -184,31 +173,27 @@ https://localhost:{port}/swagger
   "Audience": "LoansApiUsers",
   "ExpiresInMinutes": 1440
 }
+```
+## 📘 API Endpoints Summary
+#### Auth
+- POST /api/auth/register
+- POST /api/auth/login
 
-📘 API Endpoints Summary
-Auth
-POST /api/auth/register
-POST /api/auth/login
+#### Users
+- GET /api/users/{id}
+- PUT /api/users/{id}/block   (Accountant)
+- PUT /api/users/{id}/unblock (Accountant)
 
-Users
-GET /api/users/{id}
-PUT /api/users/{id}/block   (Accountant)
-PUT /api/users/{id}/unblock (Accountant)
+#### Loans
+- POST   /api/loans                (User)
+- GET    /api/loans/{id}           (User/Accountant)
+- GET    /api/loans                (Accountant)
+- GET    /api/loans/user/{userId}  (Accountant)
+- PUT    /api/loans/{id}           (User/Accountant)
+- PUT    /api/loans/{id}/status    (Accountant)
+- DELETE /api/loans/{id}           (User/Accountant)
 
-Loans
-POST   /api/loans                (User)
-GET    /api/loans/{id}           (User/Accountant)
-GET    /api/loans                (Accountant)
-GET    /api/loans/user/{userId}  (Accountant)
-PUT    /api/loans/{id}           (User/Accountant)
-PUT    /api/loans/{id}/status    (Accountant)
-DELETE /api/loans/{id}           (User/Accountant)
-
-📬 Contact
-
-If you want CI/CD, architecture diagrams, Postman collection, or advanced test coverage — just ask.
-
-GitHub: https://github.com/edwardmrdoian/
-
-Project: LoansWebApi
-Developed by Edward Mrd 🚀
+## 📬 Contact
+#### GitHub: https://github.com/edwardmrdoian/
+#### Project: **LoansWebApi**
+#### Developed by Edward Mrdoyan 🚀
